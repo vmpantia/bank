@@ -10,8 +10,8 @@ namespace Bank.DAL.Contractors
 
         Task<IEnumerable<T>> GetAllAsync();
         Task<T> GetByIdAsync(object id);
-        Task AddAsync(T t);
-        Task DeleteAsync(object id);
-        Task UpdateAsync(object id, object model);
+        Task AddAsync(T entity, bool isAutoSave = true);
+        Task UpdateAsync(object id, object model, bool isAutoSave = true);
+        Task DeleteAsync(object id, bool isAutoSave = true);
     }
 }

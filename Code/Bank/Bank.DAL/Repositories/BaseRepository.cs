@@ -1,4 +1,5 @@
-﻿using Bank.DAL.Contractors;
+﻿using Bank.Common.Constants;
+using Bank.DAL.Contractors;
 using Bank.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,7 +23,7 @@ namespace Bank.DAL.Repositories
         {
             var result = await _table.ToListAsync();
             if (result == null)
-                throw new ArgumentNullException("No records found in the system.");
+                throw new Exception(ErrorMessage.ERROR_NO_RECORD_FOUND);
 
             return result;
         }
@@ -31,7 +32,7 @@ namespace Bank.DAL.Repositories
         {
             var result = await _table.FindAsync(id);
             if (result == null)
-                throw new ArgumentNullException("No record found in the system.");
+                throw new Exception(ErrorMessage.ERROR_NO_RECORD_FOUND);
 
             return result;
         }
@@ -42,42 +43,45 @@ namespace Bank.DAL.Repositories
             return result.ToList().Any();
         }
 
-        public async Task AddAsync(T t)
+        public async Task AddAsync(T entity, bool isAutoSave = true)
         {
-            if (t == null)
-                throw new ArgumentNullException(nameof(t));
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
 
-            await _table.AddAsync(t);
+            await _table.AddAsync(entity);
+
+            if (!isAutoSave)
+                return;
+
             var result = await _db.SaveChangesAsync();
-
             if (result <= 0)
-                throw new Exception("Error in creating data.");
+                throw new Exception(ErrorMessage.ERROR_INSERTING_DATA);
         }
 
-        public async Task UpdateAsync(object id, object model)
+        public async Task UpdateAsync(object id, object model, bool isAutoSave = true)
         {
             var data = await GetByIdAsync(id);
-            if (data != null)
-            {
-                _db.Entry(data).CurrentValues.SetValues(model);
-                var result = await _db.SaveChangesAsync();
+            _db.Entry(data).CurrentValues.SetValues(model);
 
-                if (result <= 0)
-                    throw new Exception("Error in updating data.");
-            }
+            if (!isAutoSave)
+                return;
+
+            var result = await _db.SaveChangesAsync();
+            if (result <= 0)
+                throw new Exception(ErrorMessage.ERROR_UPDATING_DATA);
         }
 
-        public async Task DeleteAsync(object id)
+        public async Task DeleteAsync(object id, bool isAutoSave = true)
         {
             var data = await GetByIdAsync(id);
-            if (data != null)
-            {
-                _table.Remove(data);
-                var result = await _db.SaveChangesAsync();
+            _table.Remove(data);
 
-                if (result <= 0)
-                    throw new Exception("Error in deleting data.");
-            }
+            if (!isAutoSave)
+                return;
+
+            var result = await _db.SaveChangesAsync();
+            if (result <= 0)
+                throw new Exception(ErrorMessage.ERROR_DELETING_DATA);
         }
 
     }

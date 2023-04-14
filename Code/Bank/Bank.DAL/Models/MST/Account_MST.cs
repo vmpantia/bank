@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bank.DAL.Entities.MST
+namespace Bank.DAL.Models.MST
 {
     internal class Account_MST
     {
@@ -22,7 +22,7 @@ namespace Bank.DAL.Entities.MST
         public string CountryCode { get; set; }
         public string PhoneNumber { get; set; }
         public string EmailAddress { get; set; }
-        
+
         //Location Details
         public string PresentAddress { get; set; }
         public string PermanentAddress { get; set; }
