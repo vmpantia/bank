@@ -33,6 +33,8 @@ namespace Bank.DAL.Repositories
             var result = await _db.SaveChangesAsync();
             if (result <= 0)
                 throw new Exception(ErrorMessage.SAVING_DATA);
+
+            Dispose();
         }
 
         public void Dispose()

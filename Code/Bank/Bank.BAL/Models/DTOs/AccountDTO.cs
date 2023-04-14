@@ -8,7 +8,7 @@ namespace Bank.BAL.Models.DTOs
         public Guid InternalID { get; set; }
         public string AccountNumber { get; set; }
         public int Type { get; set; }
-        public string TypeDescription { get; set; }
+        public string TypeDescription { get; set; } 
 
         //Personal Details
         public string FirstName { get; set; }

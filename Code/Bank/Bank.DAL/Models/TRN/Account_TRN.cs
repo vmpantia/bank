@@ -1,12 +1,18 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Bank.DAL.Models.MST
+namespace Bank.DAL.Models.TRN
 {
-    public class Account_MST
+    [PrimaryKey(nameof(RequestID), nameof(Number), nameof(InternalID))]
+    public class Account_TRN
     {
+        [Required, MaxLength(15)]
+        public string RequestID { get; set; }
+
+        public int Number { get; set; }
+
         //Account Details
-        [Key]
         public Guid InternalID { get; set; }
 
         [Required, MaxLength(15)]
@@ -61,6 +67,5 @@ namespace Bank.DAL.Models.MST
         public DateTime CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
-
     }
 }
