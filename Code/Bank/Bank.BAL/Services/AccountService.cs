@@ -1,10 +1,12 @@
-﻿using Bank.BAL.Contractors;
+﻿using Azure.Core;
+using Bank.BAL.Contractors;
 using Bank.BAL.Models.DTOs;
 using Bank.BAL.Models.Requests;
 using Bank.BAL.Utilities;
 using Bank.Common.Constants;
 using Bank.DAL.Contractors;
 using Bank.DAL.Models.MST;
+using Bank.DAL.Models.TRN;
 
 namespace Bank.BAL.Services
 {
@@ -18,21 +20,20 @@ namespace Bank.BAL.Services
 
         public async Task<List<AccountDTO>> GetAccountsAsync()
         {
-            var result = await _unitOfWork.AccountRepository.GetAllAsync();
+            var result = await _unitOfWork.ActRepo.GetAllAsync();
             return result.Select(data => Parser.ParseAccount(data)).ToList();
         }
 
         public async Task<List<AccountDTO>> GetAccountByQueryAsync(string query)
         {
-            var result = await _unitOfWork.AccountRepository.GetByQueryAsync(data => data.FirstName.Contains(query) ||
-                                                                                     data.MiddleName.Contains(query) ||
-                                                                                     data.LastName.Contains(query));
+            var result = await _unitOfWork.ActRepo.GetByQueryAsync(data => data.FirstName.Contains(query) ||
+                                                                          data.LastName.Contains(query));
             return result.Select(data => Parser.ParseAccount(data)).ToList();
         }
 
         public async Task<AccountDTO> GetAccountByIdAsync(Guid internalID)
         {
-            var result = await _unitOfWork.AccountRepository.GetByIdAsync(internalID);
+            var result = await _unitOfWork.ActRepo.GetByIdAsync(internalID);
             return Parser.ParseAccount(result);
         }
 
@@ -41,27 +42,21 @@ namespace Bank.BAL.Services
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            try
+            var input = Parser.ParseAccount(request.inputAccount);
+            switch (request.FunctionID)
             {
-                var input = Parser.ParseAccount(request.inputAccount);
-                switch (request.FunctionID)
-                {
-                    case RequestFunction.ADD_ACCOUNT:
-                        await AddAccountAsync(input);
-                        break;
-                    case RequestFunction.EDIT_ACCOUNT:
-                        await EditAccountAsync(input);
-                        break;
-                    case RequestFunction.DELETE_ACCOUNT:
-                        await DeleteAsync(input.InternalID);
-                        break;
-                }
-                await _unitOfWork.SaveAsync();
+                case RequestFunction.ADD_ACCOUNT:
+                    await AddAccountAsync(input);
+                    break;
+                case RequestFunction.EDIT_ACCOUNT:
+                    await EditAccountAsync(input);
+                    break;
+                case RequestFunction.DELETE_ACCOUNT:
+                    await DeleteAsync(input.InternalID);
+                    break;
             }
-            catch(Exception ex)
-            {
-                throw ex; 
-            }
+            await AddAccountTrnAsync(input, request.RequestID);
+            await _unitOfWork.SaveAsync();
         }
 
         private async Task AddAccountAsync(Account_MST input)
@@ -69,12 +64,12 @@ namespace Bank.BAL.Services
             input.InternalID = Guid.NewGuid();
             input.CreatedDate = DateTime.Now;
             input.ModifiedDate = null;
-            await _unitOfWork.AccountRepository.AddAsync(input);
+            await _unitOfWork.ActRepo.AddAsync(input);
         }
 
         private async Task EditAccountAsync(Account_MST input)
         {
-            await _unitOfWork.AccountRepository.UpdateAsync(input.InternalID, new
+            await _unitOfWork.ActRepo.UpdateAsync(input.InternalID, new
             {
                 //InternalID = input.InternalID,
                 //AccountNumber = input.AccountNumber,
@@ -100,7 +95,14 @@ namespace Bank.BAL.Services
 
         private async Task DeleteAsync(Guid internalID)
         {
-            await _unitOfWork.AccountRepository.DeleteAsync(internalID);
+            await _unitOfWork.ActRepo.DeleteAsync(internalID);
         }
+
+        private async Task AddAccountTrnAsync(Account_MST input, string requestID, int number = 1)
+        {
+            var trn = Parser.ParseAccount(input, requestID, number);
+            await _unitOfWork.ActTrnRepo.AddAsync(trn);
+        }
+
     }
 }
