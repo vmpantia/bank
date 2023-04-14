@@ -1,13 +1,14 @@
 ﻿using System;
 
-namespace Bank.DAL.Models.MST
+namespace Bank.BAL.Models.DTOs
 {
-    public class Account_MST
+    public class AccountDTO
     {
         //Account Details
         public Guid InternalID { get; set; }
         public string AccountNumber { get; set; }
         public int Type { get; set; }
+        public string TypeDescription { get; set; }
 
         //Personal Details
         public string FirstName { get; set; }
@@ -30,6 +31,7 @@ namespace Bank.DAL.Models.MST
 
         //Common Columns
         public int Status { get; set; }
+        public string StatusDescription { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
     }

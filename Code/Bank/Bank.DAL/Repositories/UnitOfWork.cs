@@ -1,4 +1,5 @@
-﻿using Bank.DAL.Contractors;
+﻿using Bank.Common.Constants;
+using Bank.DAL.Contractors;
 using Bank.DAL.Data;
 using Bank.DAL.Models.MST;
 using System;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bank.DAL.Repositories
 {
-    internal class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly BankDBContext _db;
         private IBaseRepository<Account_MST> _account;
@@ -29,7 +30,9 @@ namespace Bank.DAL.Repositories
 
         public async Task SaveAsync()
         {
-            await _db.SaveChangesAsync();
+            var result = await _db.SaveChangesAsync();
+            if (result <= 0)
+                throw new Exception(ErrorMessage.SAVING_DATA);
         }
 
         public void Dispose()

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Bank.DAL.Contractors
 {
-    internal interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IDisposable
     {
         IBaseRepository<Account_MST> AccountRepository { get; }
         Task SaveAsync();

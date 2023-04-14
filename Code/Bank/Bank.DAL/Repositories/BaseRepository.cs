@@ -23,7 +23,7 @@ namespace Bank.DAL.Repositories
         {
             var result = await _table.ToListAsync();
             if (result == null)
-                throw new Exception(ErrorMessage.ERROR_NO_RECORD_FOUND);
+                throw new Exception(ErrorMessage.NO_RECORD_FOUND);
 
             return result;
         }
@@ -32,7 +32,7 @@ namespace Bank.DAL.Repositories
         {
             var result = await _table.FindAsync(id);
             if (result == null)
-                throw new Exception(ErrorMessage.ERROR_NO_RECORD_FOUND);
+                throw new Exception(ErrorMessage.NO_RECORD_FOUND);
 
             return result;
         }
@@ -50,29 +50,18 @@ namespace Bank.DAL.Repositories
 
             await _table.AddAsync(entity);
 
-            var result = await _db.SaveChangesAsync();
-            if (result <= 0)
-                throw new Exception(ErrorMessage.ERROR_INSERTING_DATA);
         }
 
         public async Task UpdateAsync(object id, object model)
         {
             var data = await GetByIdAsync(id);
             _db.Entry(data).CurrentValues.SetValues(model);
-
-            var result = await _db.SaveChangesAsync();
-            if (result <= 0)
-                throw new Exception(ErrorMessage.ERROR_UPDATING_DATA);
         }
 
         public async Task DeleteAsync(object id)
         {
             var data = await GetByIdAsync(id);
             _table.Remove(data);
-
-            var result = await _db.SaveChangesAsync();
-            if (result <= 0)
-                throw new Exception(ErrorMessage.ERROR_DELETING_DATA);
         }
 
     }
