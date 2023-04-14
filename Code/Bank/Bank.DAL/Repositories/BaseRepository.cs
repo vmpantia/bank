@@ -43,41 +43,32 @@ namespace Bank.DAL.Repositories
             return result.ToList().Any();
         }
 
-        public async Task AddAsync(T entity, bool isAutoSave = true)
+        public async Task AddAsync(T entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
             await _table.AddAsync(entity);
 
-            if (!isAutoSave)
-                return;
-
             var result = await _db.SaveChangesAsync();
             if (result <= 0)
                 throw new Exception(ErrorMessage.ERROR_INSERTING_DATA);
         }
 
-        public async Task UpdateAsync(object id, object model, bool isAutoSave = true)
+        public async Task UpdateAsync(object id, object model)
         {
             var data = await GetByIdAsync(id);
             _db.Entry(data).CurrentValues.SetValues(model);
-
-            if (!isAutoSave)
-                return;
 
             var result = await _db.SaveChangesAsync();
             if (result <= 0)
                 throw new Exception(ErrorMessage.ERROR_UPDATING_DATA);
         }
 
-        public async Task DeleteAsync(object id, bool isAutoSave = true)
+        public async Task DeleteAsync(object id)
         {
             var data = await GetByIdAsync(id);
             _table.Remove(data);
-
-            if (!isAutoSave)
-                return;
 
             var result = await _db.SaveChangesAsync();
             if (result <= 0)
