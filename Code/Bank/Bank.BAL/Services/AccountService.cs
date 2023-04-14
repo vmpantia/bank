@@ -22,6 +22,14 @@ namespace Bank.BAL.Services
             return result.Select(data => Parser.ParseAccount(data)).ToList();
         }
 
+        public async Task<List<AccountDTO>> GetAccountByQueryAsync(string query)
+        {
+            var result = await _unitOfWork.AccountRepository.GetByQueryAsync(data => data.FirstName.Contains(query) ||
+                                                                                     data.MiddleName.Contains(query) ||
+                                                                                     data.LastName.Contains(query));
+            return result.Select(data => Parser.ParseAccount(data)).ToList();
+        }
+
         public async Task<AccountDTO> GetAccountByIdAsync(Guid internalID)
         {
             var result = await _unitOfWork.AccountRepository.GetByIdAsync(internalID);
@@ -33,24 +41,30 @@ namespace Bank.BAL.Services
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var input = Parser.ParseAccount(request.inputAccount);
-
-            switch (request.FunctionID)
+            try
             {
-                case RequestFunction.ADD_ACCOUNT:
-                    await AddAccount(input);
-                    break;
-                case RequestFunction.EDIT_ACCOUNT:
-                    await EditAccount(input);
-                    break;
-                case RequestFunction.DELETE_ACCOUNT:
-                    await _unitOfWork.AccountRepository.DeleteAsync(input.InternalID);
-                    break;
+                var input = Parser.ParseAccount(request.inputAccount);
+                switch (request.FunctionID)
+                {
+                    case RequestFunction.ADD_ACCOUNT:
+                        await AddAccountAsync(input);
+                        break;
+                    case RequestFunction.EDIT_ACCOUNT:
+                        await EditAccountAsync(input);
+                        break;
+                    case RequestFunction.DELETE_ACCOUNT:
+                        await DeleteAsync(input.InternalID);
+                        break;
+                }
+                await _unitOfWork.SaveAsync();
             }
-            await _unitOfWork.SaveAsync();
+            catch(Exception ex)
+            {
+                throw ex; 
+            }
         }
 
-        private async Task AddAccount(Account_MST input)
+        private async Task AddAccountAsync(Account_MST input)
         {
             input.InternalID = Guid.NewGuid();
             input.CreatedDate = DateTime.Now;
@@ -58,7 +72,7 @@ namespace Bank.BAL.Services
             await _unitOfWork.AccountRepository.AddAsync(input);
         }
 
-        private async Task EditAccount(Account_MST input)
+        private async Task EditAccountAsync(Account_MST input)
         {
             await _unitOfWork.AccountRepository.UpdateAsync(input.InternalID, new
             {
@@ -82,6 +96,11 @@ namespace Bank.BAL.Services
                 //CreatedDate = input.CreatedDate,
                 ModifiedDate = DateTime.Now
             });
+        }
+
+        private async Task DeleteAsync(Guid internalID)
+        {
+            await _unitOfWork.AccountRepository.DeleteAsync(internalID);
         }
     }
 }

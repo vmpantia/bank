@@ -28,6 +28,12 @@ namespace Bank.DAL.Repositories
             return result;
         }
 
+        public async Task<IEnumerable<T>> GetByQueryAsync(Func<T, bool> condition)
+        {
+            var result = _table.Where(condition).ToList();
+            return result;
+        }
+
         public async Task<T> GetByIdAsync(object id)
         {
             var result = await _table.FindAsync(id);
@@ -35,12 +41,6 @@ namespace Bank.DAL.Repositories
                 throw new Exception(ErrorMessage.NO_RECORD_FOUND);
 
             return result;
-        }
-
-        public bool IsDataExist(Func<T, bool> condition)
-        {
-            var result = _table.Where(condition);
-            return result.ToList().Any();
         }
 
         public async Task AddAsync(T entity)

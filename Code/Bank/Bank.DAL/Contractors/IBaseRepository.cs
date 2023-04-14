@@ -6,9 +6,8 @@ namespace Bank.DAL.Contractors
 {
     public interface IBaseRepository<T> where T : class
     {
-        bool IsDataExist(Func<T, bool> condition);
-
         Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetByQueryAsync(Func<T, bool> condition);
         Task<T> GetByIdAsync(object id);
         Task AddAsync(T entity);
         Task UpdateAsync(object id, object model);
