@@ -2,9 +2,6 @@
 using Bank.DAL.Data;
 using Bank.DAL.Models.MST;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bank.DAL.Repositories
@@ -30,15 +27,15 @@ namespace Bank.DAL.Repositories
             }
         }
 
+        public async Task SaveAsync()
+        {
+            await _db.SaveChangesAsync();
+        }
+
         public void Dispose()
         {
             _db.Dispose();
             GC.SuppressFinalize(this);
-        }
-
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
         }
     }
 }
