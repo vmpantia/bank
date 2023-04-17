@@ -6,6 +6,54 @@ namespace Bank.BAL.Utilities
 {
     public class Parser
     {
+        public static List<TransactionDTO> ParseTransactions(List<Transaction_MST> transactions)
+        {
+            decimal runningBalance = 0;
+            var result = new List<TransactionDTO>();
+            foreach(var transaction in transactions)
+            {
+                runningBalance += Math.Round(transaction.Amount + transaction.Fee);
+                result.Add(ParseTransaction(transaction, runningBalance));
+            }
+            return result;
+        }
+
+        private static TransactionDTO ParseTransaction(Transaction_MST data, decimal runningBalance = 0)
+        {
+            return new TransactionDTO
+            {
+                InternalID = data.InternalID,
+                Account_InternalID = data.Account_InternalID,
+                Code = data.Code,
+                Made = data.Made,
+                Amount = data.Amount,
+                Fee = data.Fee,
+                RunningBalance = runningBalance,
+                Location = data.Location,
+                Remarks = data.Remarks,
+                Status = data.Status,
+                CreatedDate = data.CreatedDate,
+                ModifiedDate = data.ModifiedDate
+            };
+        }
+        public static Transaction_MST ParseTransaction(TransactionDTO data)
+        {
+            return new Transaction_MST
+            {
+                InternalID = data.InternalID,
+                Account_InternalID = data.Account_InternalID,
+                Code = data.Code,
+                Made = data.Made,
+                Amount = data.Amount,
+                Fee = data.Fee,
+                Location = data.Location,
+                Remarks = data.Remarks,
+                Status = data.Status,
+                CreatedDate = data.CreatedDate,
+                ModifiedDate = data.ModifiedDate
+            };
+        }
+
         public static AccountDTO ParseAccount(Account_MST data)
         {
             return new AccountDTO { 
@@ -57,7 +105,6 @@ namespace Bank.BAL.Utilities
                 ModifiedDate = data.ModifiedDate
             };
         }
-
         public static Account_TRN ParseAccount(Account_MST data, string requestID, int number)
         {
             return new Account_TRN

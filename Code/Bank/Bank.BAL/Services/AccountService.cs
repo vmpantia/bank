@@ -2,10 +2,8 @@
 using Bank.BAL.Models.DTOs;
 using Bank.BAL.Models.Requests;
 using Bank.BAL.Utilities;
-using Bank.Common;
 using Bank.Common.Constants;
 using Bank.DAL.Contractors;
-using Bank.DAL.Models.LST;
 using Bank.DAL.Models.MST;
 
 namespace Bank.BAL.Services
@@ -55,7 +53,7 @@ namespace Bank.BAL.Services
                     await UpdateAccountAsync(input);
                     break;
                 case RequestFunction.DELETE_ACCOUNT:
-                    await DeleteAsync(input.InternalID);
+                    await DeleteAccountAsync(input.InternalID);
                     break;
             }
             await InsertAccountTrnAsync(input, requestID);
@@ -74,8 +72,8 @@ namespace Bank.BAL.Services
         {
             await _unitOfWork.ActRepo.UpdateAsync(input.InternalID, new
             {
-                //InternalID = input.InternalID,
-                //AccountNumber = input.AccountNumber,
+                //input.InternalID,
+                //input.AccountNumber,
                 input.Type,
                 input.FirstName,
                 input.LastName,
@@ -91,12 +89,12 @@ namespace Bank.BAL.Services
                 input.PermanentAddress,
                 input.ProvincialAddress,
                 input.Status,
-                //CreatedDate = input.CreatedDate,
+                //input.CreatedDate,
                 ModifiedDate = DateTime.Now
             });
         }
 
-        private async Task DeleteAsync(Guid internalID)
+        private async Task DeleteAccountAsync(Guid internalID)
         {
             await _unitOfWork.ActRepo.DeleteAsync(internalID);
         }
