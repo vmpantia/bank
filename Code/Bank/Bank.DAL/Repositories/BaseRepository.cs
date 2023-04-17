@@ -19,6 +19,14 @@ namespace Bank.DAL.Repositories
             _table = db.Set<T>();
         }
 
+        public DbSet<T> Table 
+        { 
+            get
+            {
+                return _table;
+            }
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             var result = await _table.ToListAsync();

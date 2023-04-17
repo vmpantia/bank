@@ -1,10 +1,13 @@
-﻿using Bank.Common.Constants;
+﻿using Bank.Common;
+using Bank.Common.Constants;
 using Bank.DAL.Contractors;
 using Bank.DAL.Data;
 using Bank.DAL.Models.LST;
 using Bank.DAL.Models.MST;
 using Bank.DAL.Models.TRN;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bank.DAL.Repositories
@@ -16,10 +19,7 @@ namespace Bank.DAL.Repositories
         private IBaseRepository<Account_MST> _act;
         private IBaseRepository<Account_TRN> _actTrn;
 
-        public UnitOfWork(BankDBContext db)
-        {
-            _db = db;
-        }
+        public UnitOfWork(BankDBContext db) => _db = db;
 
         public IBaseRepository<Request_LST> ReqRepo
         {
@@ -59,6 +59,22 @@ namespace Bank.DAL.Repositories
                 throw new Exception(ErrorMessage.SAVING_DATA);
 
             Dispose();
+        }
+
+        public async Task<string> GenerateRequestID()
+        {
+            var requestsToday = await ReqRepo.Table.Where(data => data.RequestDate == DateTime.Parse(Globals.EXEC_DATE))
+                                                   .OrderByDescending(data => data.RequestID)
+                                                   .ToListAsync();
+       
+            if (requestsToday == null || !requestsToday.Any())
+                return string.Format(Format.FORMAT_REQUEST_ID, Globals.ID_PREFFIX, Default.DEFAULT_ID_SUFFIX);
+
+            var latestRequestID = requestsToday.First().RequestID;
+            var currentSuffix = latestRequestID.Substring(Default.DEFAULT_ID_PREFIX_LENGTH, Default.DEFAULT_ID_SUFFIX_LENGTH);
+            var newSuffix = (int.Parse(currentSuffix) + 1).ToString().PadLeft(Default.DEFAULT_ID_SUFFIX_LENGTH, Default.ZERO);
+
+            return string.Format(Format.FORMAT_REQUEST_ID, Globals.ID_PREFFIX, newSuffix);
         }
 
         public void Dispose()

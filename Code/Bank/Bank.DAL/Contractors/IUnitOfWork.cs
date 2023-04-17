@@ -11,6 +11,7 @@ namespace Bank.DAL.Contractors
         IBaseRepository<Request_LST> ReqRepo { get; }
         IBaseRepository<Account_MST> ActRepo { get; }
         IBaseRepository<Account_TRN> ActTrnRepo { get; }
+        Task<string> GenerateRequestID();
         Task SaveAsync();
     }
 }

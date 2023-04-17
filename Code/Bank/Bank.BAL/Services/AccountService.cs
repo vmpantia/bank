@@ -1,12 +1,12 @@
-﻿using Azure.Core;
-using Bank.BAL.Contractors;
+﻿using Bank.BAL.Contractors;
 using Bank.BAL.Models.DTOs;
 using Bank.BAL.Models.Requests;
 using Bank.BAL.Utilities;
+using Bank.Common;
 using Bank.Common.Constants;
 using Bank.DAL.Contractors;
+using Bank.DAL.Models.LST;
 using Bank.DAL.Models.MST;
-using Bank.DAL.Models.TRN;
 
 namespace Bank.BAL.Services
 {
@@ -42,24 +42,25 @@ namespace Bank.BAL.Services
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
+            var requestID = await InsertRequestAsync(request);
             var input = Parser.ParseAccount(request.inputAccount);
             switch (request.FunctionID)
             {
                 case RequestFunction.ADD_ACCOUNT:
-                    await AddAccountAsync(input);
+                    await InsertAccountAsync(input);
                     break;
                 case RequestFunction.EDIT_ACCOUNT:
-                    await EditAccountAsync(input);
+                    await UpdateAccountAsync(input);
                     break;
                 case RequestFunction.DELETE_ACCOUNT:
                     await DeleteAsync(input.InternalID);
                     break;
             }
-            await AddAccountTrnAsync(input, request.RequestID);
+            await InsertAccountTrnAsync(input, requestID);
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task AddAccountAsync(Account_MST input)
+        private async Task InsertAccountAsync(Account_MST input)
         {
             input.InternalID = Guid.NewGuid();
             input.CreatedDate = DateTime.Now;
@@ -67,7 +68,7 @@ namespace Bank.BAL.Services
             await _unitOfWork.ActRepo.AddAsync(input);
         }
 
-        private async Task EditAccountAsync(Account_MST input)
+        private async Task UpdateAccountAsync(Account_MST input)
         {
             await _unitOfWork.ActRepo.UpdateAsync(input.InternalID, new
             {
@@ -98,11 +99,29 @@ namespace Bank.BAL.Services
             await _unitOfWork.ActRepo.DeleteAsync(internalID);
         }
 
-        private async Task AddAccountTrnAsync(Account_MST input, string requestID, int number = 1)
+        private async Task InsertAccountTrnAsync(Account_MST input, string requestID, int number = 1)
         {
             var trn = Parser.ParseAccount(input, requestID, number);
             await _unitOfWork.ActTrnRepo.AddAsync(trn);
         }
 
+        private async Task<string> InsertRequestAsync(BaseRequest request)
+        {
+            var newRequest = new Request_LST
+            {
+                RequestID = await _unitOfWork.GenerateRequestID(),
+                FunctionID = request.FunctionID,
+                RequestDate = DateTime.Parse(Globals.EXEC_DATE),
+                RequestBy = request.inputClient.UserID,
+                ApprovedDate = null,
+                ApprovedBy = null,
+                Status = request.RequestStatus,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = null
+            };
+
+            await _unitOfWork.ReqRepo.AddAsync(newRequest);
+            return newRequest.RequestID;
+        }
     }
 }
