@@ -12,7 +12,7 @@ namespace Bank.BAL.Utilities
                 InternalID = data.InternalID,
                 AccountNumber = data.AccountNumber,
                 Type = data.Type,
-                TypeDescription = "",
+                TypeDescription = Converter.ConvertAccountType(data.Type),
                 FirstName = data.FirstName,
                 LastName = data.LastName,
                 MiddleName = data.MiddleName ?? string.Empty,
@@ -27,7 +27,7 @@ namespace Bank.BAL.Utilities
                 PermanentAddress = data.PermanentAddress,
                 ProvincialAddress = data.ProvincialAddress,
                 Status = data.Status,
-                StatusDescription = "",
+                StatusDescription = Converter.ConvertStatus(data.Status),
                 CreatedDate = data.CreatedDate,
                 ModifiedDate = data.ModifiedDate
             };

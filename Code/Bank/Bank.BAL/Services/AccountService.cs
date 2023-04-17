@@ -42,7 +42,9 @@ namespace Bank.BAL.Services
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var requestID = await InsertRequestAsync(request);
+            var requestID = await _unitOfWork.InsertRequestAsync(request.FunctionID, 
+                                                                 request.RequestStatus, 
+                                                                 request.inputClient.UserID);
             var input = Parser.ParseAccount(request.inputAccount);
             switch (request.FunctionID)
             {
@@ -103,25 +105,6 @@ namespace Bank.BAL.Services
         {
             var trn = Parser.ParseAccount(input, requestID, number);
             await _unitOfWork.ActTrnRepo.AddAsync(trn);
-        }
-
-        private async Task<string> InsertRequestAsync(BaseRequest request)
-        {
-            var newRequest = new Request_LST
-            {
-                RequestID = await _unitOfWork.GenerateRequestID(),
-                FunctionID = request.FunctionID,
-                RequestDate = DateTime.Parse(Globals.EXEC_DATE),
-                RequestBy = request.inputClient.UserID,
-                ApprovedDate = null,
-                ApprovedBy = null,
-                Status = request.RequestStatus,
-                CreatedDate = DateTime.Now,
-                ModifiedDate = null
-            };
-
-            await _unitOfWork.ReqRepo.AddAsync(newRequest);
-            return newRequest.RequestID;
         }
     }
 }

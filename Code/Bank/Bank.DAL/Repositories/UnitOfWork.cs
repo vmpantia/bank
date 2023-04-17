@@ -61,12 +61,31 @@ namespace Bank.DAL.Repositories
             Dispose();
         }
 
-        public async Task<string> GenerateRequestID()
+        public async Task<string> InsertRequestAsync(string functionID, string requestStatus, Guid userID)
+        {
+            var newRequest = new Request_LST
+            {
+                RequestID = await GenerateRequestID(),
+                FunctionID = functionID,
+                RequestDate = DateTime.Parse(Globals.EXEC_DATE),
+                RequestBy = userID,
+                ApprovedDate = null,
+                ApprovedBy = null,
+                Status = requestStatus,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = null
+            };
+
+            await ReqRepo.AddAsync(newRequest);
+            return newRequest.RequestID;
+        }
+
+        private async Task<string> GenerateRequestID()
         {
             var requestsToday = await ReqRepo.Table.Where(data => data.RequestDate == DateTime.Parse(Globals.EXEC_DATE))
                                                    .OrderByDescending(data => data.RequestID)
                                                    .ToListAsync();
-       
+
             if (requestsToday == null || !requestsToday.Any())
                 return string.Format(Format.FORMAT_REQUEST_ID, Globals.ID_PREFFIX, Default.DEFAULT_ID_SUFFIX);
 
