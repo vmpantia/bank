@@ -10,7 +10,7 @@ namespace Bank.DAL.Contractors
         DbSet<T> Table { get; }
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetByQueryAsync(Func<T, bool> condition);
-        Task<T> GetByIdAsync(object id);
+        Task<T> GetByIDAsync(object id);
         Task AddAsync(T entity);
         Task UpdateAsync(object id, object model);
         Task DeleteAsync(object id);

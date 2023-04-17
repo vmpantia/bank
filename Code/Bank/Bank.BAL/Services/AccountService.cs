@@ -31,9 +31,9 @@ namespace Bank.BAL.Services
             return result.Select(data => Parser.ParseAccount(data)).ToList();
         }
 
-        public async Task<AccountDTO> GetAccountByIdAsync(Guid internalID)
+        public async Task<AccountDTO> GetAccountByIDAsync(Guid internalID)
         {
-            var result = await _unitOfWork.ActRepo.GetByIdAsync(internalID);
+            var result = await _unitOfWork.ActRepo.GetByIDAsync(internalID);
             return Parser.ParseAccount(result);
         }
 

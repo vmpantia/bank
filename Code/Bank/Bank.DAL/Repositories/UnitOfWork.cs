@@ -18,6 +18,7 @@ namespace Bank.DAL.Repositories
         private IBaseRepository<Request_LST> _req;
         private IBaseRepository<Account_MST> _act;
         private IBaseRepository<Account_TRN> _actTrn;
+        private IBaseRepository<Transaction_MST> _trn;
 
         public UnitOfWork(BankDBContext db) => _db = db;
 
@@ -49,6 +50,16 @@ namespace Bank.DAL.Repositories
                     _actTrn = new BaseRepository<Account_TRN>(_db);
 
                 return _actTrn;
+            }
+        }
+        public IBaseRepository<Transaction_MST> TrnRepo
+        {
+            get
+            {
+                if (_trn == null)
+                    _trn = new BaseRepository<Transaction_MST>(_db);
+
+                return _trn;
             }
         }
 

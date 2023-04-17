@@ -5,8 +5,9 @@ namespace Bank.BAL.Contractors
 {
     public interface IAccountService
     {
-        Task<AccountDTO> GetAccountByIdAsync(Guid internalID);
         Task<List<AccountDTO>> GetAccountsAsync();
+        Task<List<AccountDTO>> GetAccountByQueryAsync(string query);
+        Task<AccountDTO> GetAccountByIDAsync(Guid internalID);
         Task SaveAccountAsync(SaveAccountRequest request);
     }
 }

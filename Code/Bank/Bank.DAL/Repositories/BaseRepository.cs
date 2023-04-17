@@ -42,7 +42,7 @@ namespace Bank.DAL.Repositories
             return result;
         }
 
-        public async Task<T> GetByIdAsync(object id)
+        public async Task<T> GetByIDAsync(object id)
         {
             var result = await _table.FindAsync(id);
             if (result == null)
@@ -62,13 +62,13 @@ namespace Bank.DAL.Repositories
 
         public async Task UpdateAsync(object id, object model)
         {
-            var data = await GetByIdAsync(id);
+            var data = await GetByIDAsync(id);
             _db.Entry(data).CurrentValues.SetValues(model);
         }
 
         public async Task DeleteAsync(object id)
         {
-            var data = await GetByIdAsync(id);
+            var data = await GetByIDAsync(id);
             _table.Remove(data);
         }
 
